@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+
+void findAndPrintLRS(char *s) {
+    int n = strlen(s);
+
+    int **dp = (int **)malloc((n + 1) * sizeof(int *));
+    for (int i = 0; i <= n; i++) {
+        dp[i] = (int *)calloc(n + 1, sizeof(int));
+    }
+
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (s[i - 1] == s[j - 1] && i != j) {
+                dp[i][j] = 1 + dp[i - 1][j - 1];
+            } else {
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
+    }
+
+    int lrsLength = dp[n][n];
+    char *lrsString = (char *)malloc((lrsLength + 1) * sizeof(char));
+    lrsString[lrsLength] = '\0';
+
+    int i = n, j = n;
+    int index = lrsLength;
+
+    while (i > 0 && j > 0) {
+        if (dp[i][j] == dp[i - 1][j - 1] + 1 && s[i - 1] == s[j - 1] && i != j) {
+            lrsString[index - 1] = s[i - 1];
+            i--;
+            j--;
+            index--;
+        } else if (dp[i - 1][j] > dp[i][j - 1]) {
+            i--;
+        } else {
+            j--;
+        }
+    }
+
+    printf("Original String: %s\n", s);
+    printf("Longest Repeating Subsequence: %s\n", lrsString);
+    printf("Length of Longest Repeating Subsequence: %d\n", lrsLength);
+
+    free(lrsString);
+    for (int k = 0; k <= n; k++) {
+        free(dp[k]);
+    }
+    free(dp);
+}
+
+int main(void) {
+    char s[] = "AABCBDC";
+    findAndPrintLRS(s);
+    return 0;
+}
